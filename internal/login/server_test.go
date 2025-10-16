@@ -1,14 +1,14 @@
 package login
 
 import (
+	"context"
 	"crypto/tls"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http/httptest"
 	"testing"
 
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/ikiris/eqmaclib/eqdb"
 )
 
 func TestDiscoveryEndpoint(t *testing.T) {
@@ -97,12 +97,28 @@ func TestDiscoveryEndpoint(t *testing.T) {
 	}
 }
 
+// mockDB implements the eqDBClient interface for testing
+type mockDB struct{}
+
+func (m *mockDB) ValidateCredentials(ctx context.Context, username, password string) (*eqdb.Account, error) {
+	// Mock implementation - return a test account for any credentials
+	return &eqdb.Account{
+		Name: username,
+		// Add other required fields as needed
+	}, nil
+}
+
+func (m *mockDB) GetAccount(ctx context.Context, name string) (*eqdb.Account, error) {
+	// Mock implementation - return a test account
+	return &eqdb.Account{
+		Name: name,
+		// Add other required fields as needed
+	}, nil
+}
+
 func createTestServer() (*server, error) {
-	// Create a mock database (we'll use a nil DB for this test)
-	_, err := sql.Open("mysql", "test:test@tcp(localhost:3306)/test")
-	if err != nil {
-		// If we can't connect to MySQL, that's fine for testing
-	}
+	// Create a mock database instead of connecting to real MySQL
+	mockDB := &mockDB{}
 
 	// Create mock key manager
 	keyManager, err := newMockKeyManager()
@@ -125,7 +141,7 @@ func createTestServer() (*server, error) {
 	}
 
 	return &server{
-		db:              nil, // We'll mock this
+		db:              mockDB,
 		clients:         clients,
 		keyManager:      keyManager,
 		authCodeManager: authCodeManager,

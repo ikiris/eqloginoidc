@@ -1,6 +1,10 @@
 # Stage 1: Build stage
 FROM golang:1.25.1-alpine AS builder
 
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+ENV GOARCH=amd64
+
 # Install git and ca-certificates for fetching dependencies
 RUN apk add --no-cache git ca-certificates tzdata
 
@@ -17,11 +21,7 @@ RUN go mod download
 COPY . .
 
 # Build the binary
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
-    -ldflags='-w -s -extldflags "-static"' \
-    -a -installsuffix cgo \
-    -o login \
-    ./cmd/login
+RUN go build ./cmd/login
 
 # Stage 2: Runtime stage
 FROM scratch
