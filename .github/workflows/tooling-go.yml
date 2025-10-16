@@ -1,0 +1,43 @@
+name: build
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - '**/*.go'
+      - go.mod
+      - go.sum
+  pull_request:
+    paths:
+      - '**/*.go'
+      - go.mod
+      - go.sum
+permissions:
+    contents: read
+
+env:
+  golangciversion: v2.5.0
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v3
+          - name: Set up Go
+            uses: actions/setup-go@v4
+            with:
+              go-version-file: 'go.mod'
+              cache-dependency-path: subdir/go.sum
+#          - name: Install Protoc
+#            uses: arduino/setup-protoc@v2
+#            with:
+#                repo-token: ${{ secrets.GITHUB_TOKEN }}
+          - name: Build
+            run: go build ./...
+          - name: Test
+            run: go test ./...
+          - name: golangci-lint
+            uses: golangci/golangci-lint-action@v8
+            with:
+              version: ${{ env.golangciversion }}
