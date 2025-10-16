@@ -5,11 +5,13 @@ on:
       - master
       - main
     paths:
+      - '.github/workflows/tooling-go.yml'
       - '**/*.go'
       - go.mod
       - go.sum
   pull_request:
     paths:
+      - '.github/workflows/tooling-go.yml'
       - '**/*.go'
       - go.mod
       - go.sum
