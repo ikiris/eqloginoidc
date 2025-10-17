@@ -1,0 +1,9 @@
+creation_rules:
+  - path_regex: \.yaml$
+    pgp: >-
+      296651C45A168625B5D64D0C7EC695C56E20C0C5
+    unencrypted_suffix: _unencrypted
+  - path_regex: \.yml$
+    pgp: >-
+      296651C45A168625B5D64D0C7EC695C56E20C0C5
+    unencrypted_suffix: _unencrypted

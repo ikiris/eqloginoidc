@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: eqloginoidc
+  labels:
+    app: eqloginoidc
+    component: oidc-provider
+  annotations:
+    # Traefik annotations
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: default-stripprefix@kubernetescrd
+    # Cert-manager annotations
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - xev.teraptra.net
+    secretName: eqloginoidc-tls
+  rules:
+  - host: xev.teraptra.net
+    http:
+      paths:
+      - path: /login
+        pathType: Prefix
+        backend:
+          service:
+            name: eqloginoidc
+            port:
+              number: 8443

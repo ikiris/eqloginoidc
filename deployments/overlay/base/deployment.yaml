@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eqloginoidc
+  labels:
+    app: eqloginoidc
+    component: oidc-provider
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: eqloginoidc
+  template:
+    metadata:
+      labels:
+        app: eqloginoidc
+        component: oidc-provider
+    spec:
+      containers:
+      - name: eqloginoidc
+        image: ghcr.io/ikiris/eqloginoidc:latest
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8443
+          name: https
+          protocol: TCP
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: eqloginoidc-config
+              key: db-host
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: eqloginoidc-config
+              key: db-port
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: eqloginoidc-secrets
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: eqloginoidc-secrets
+              key: db-password
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: eqloginoidc-config
+              key: db-name
+        - name: CLIENT_CONFIG
+          value: "/config/clients.yaml"
+        - name: CERT_FILE
+          value: "/certs/cert.pem"
+        - name: KEY_FILE
+          value: "/certs/key.pem"
+        volumeMounts:
+        - name: client-config
+          mountPath: /config
+          readOnly: true
+        - name: tls-certs
+          mountPath: /certs
+          readOnly: true
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: client-config
+        configMap:
+          name: eqloginoidc-config
+          items:
+          - key: clients.yaml
+            path: clients.yaml
+      - name: tls-certs
+        secret:
+          secretName: eqloginoidc-tls
+      restartPolicy: Always
+      securityContext:
+        fsGroup: 1000
