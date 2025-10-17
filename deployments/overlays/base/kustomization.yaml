@@ -8,11 +8,7 @@ resources:
   - deployment.yaml
   - service.yaml
   - configmap.yaml
-  - secret.enc.yaml
-
-generators:
-  - secret.enc.yaml
 
 images:
   - name: ghcr.io/ikiris/eqloginoidc
-    newTag: v0.0.2
+    newTag: v0.0.5
