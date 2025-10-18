@@ -38,6 +38,7 @@ func doStuff(ctx context.Context) error {
 	configPath := flag.String("config", getEnv("CLIENT_CONFIG", "clients.yaml"), "Path to client configuration file")
 	certPath := flag.String("cert-file", getEnv("CERT_FILE", "cert.pem"), "Path to certificate file")
 	keyPath := flag.String("key-file", getEnv("KEY_FILE", "key.pem"), "Path to private key file")
+	useTLS := flag.Bool("tls", true, "Use TLS")
 
 	flag.Parse()
 
@@ -73,6 +74,10 @@ func doStuff(ctx context.Context) error {
 	tlsConfig, err := server.GetTLSConfig()
 	if err != nil {
 		return fmt.Errorf("failed to get TLS config: %w", err)
+	}
+
+	if !*useTLS {
+		tlsConfig = nil
 	}
 
 	hSrv := &http.Server{
