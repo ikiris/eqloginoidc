@@ -87,7 +87,15 @@ func doStuff(ctx context.Context) error {
 
 	errG, gCtx := errgroup.WithContext(ctx)
 	errG.Go(func() error {
-		if err := hSrv.ListenAndServeTLS("", ""); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		if *useTLS {
+			if err := hSrv.ListenAndServeTLS("", ""); err != nil && !errors.Is(err, http.ErrServerClosed) {
+				return fmt.Errorf("failed to listen and serve TLS: %w", err)
+			}
+
+			return nil
+		}
+
+		if err := hSrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			return fmt.Errorf("failed to listen and serve TLS: %w", err)
 		}
 
