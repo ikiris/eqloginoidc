@@ -71,7 +71,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Output image details
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        if: github.event_name == 'release' && github.event.action == 'published'
         run: |
           echo "Image built and pushed successfully!"
           echo "Tags: ${{ steps.meta.outputs.tags }}"
