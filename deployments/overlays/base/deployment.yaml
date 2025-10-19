@@ -59,9 +59,9 @@ spec:
         - name: CLIENT_CONFIG
           value: "/config/clients.yaml"
         - name: CERT_FILE
-          value: "/certs/cert.pem"
+          value: "/certs/tls.crt"
         - name: KEY_FILE
-          value: "/certs/key.pem"
+          value: "/certs/tls.key"
         volumeMounts:
         - name: client-config
           mountPath: /config
