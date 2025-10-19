@@ -3,15 +3,6 @@ name: Docker Build and Push
 on:
   release:
     types: [published]
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/docker.yml'
-      - 'Dockerfile'
-      - '**/*.go'
-      - go.mod
-      - go.sum
   pull_request:
     paths:
       - '.github/workflows/docker.yml'
