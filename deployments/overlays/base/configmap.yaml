@@ -11,11 +11,11 @@ data:
   db-name: "quarm"
   clients.yaml: |
     clients:
-      - id: "eqtestcopy"
+      - id: "eqtestcopy-spa"
         name: "EQ Test Copy"
         client_type: "public"
         redirect_uris:
-          - "https://xev.teraptra.net/copy/callback"
+          - "https://xev.teraptra.net/import/callback"
         grant_types:
           - "authorization_code"
           - "refresh_token"
