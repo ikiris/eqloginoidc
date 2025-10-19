@@ -12,3 +12,4 @@ spec:
       services:
         - name: eqloginoidc
           port: 8443
+          scheme: http
