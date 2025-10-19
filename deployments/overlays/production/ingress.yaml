@@ -22,4 +22,4 @@ metadata:
 spec:
   stripPrefix:
     prefixes:
-      - "/login"
+      - /login
