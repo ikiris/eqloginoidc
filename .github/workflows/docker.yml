@@ -3,7 +3,8 @@ name: Docker Build and Push
 on:
   workflow_dispatch:
   release:
-    types: [published]
+    types: 
+      - published
   pull_request:
     paths:
       - '.github/workflows/docker.yml'
