@@ -7,7 +7,7 @@ spec:
   entryPoints:
     - web
   routes:
-    - match: (PathPrefix(`/auth`) || PathPrefix(`/token`) || PathPrefix(`/userinfo`) || PathPrefix(`/login`))
+    - match: (PathPrefix(`/auth`) || PathPrefix(`/token`) || PathPrefix(`/userinfo`) || PathPrefix(`/login`) || PathPrefix(`/.well-known`))
       kind: Rule
       services:
         - name: eqloginoidc
