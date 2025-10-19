@@ -9,6 +9,6 @@ spec:
   routes:
     - match: Host(`xev.teraptra.net`) && PathPrefix(`/login`)
       kind: Rule
-        services:
-          - name: eqloginoidc
-            port: 8443
+      services:
+        - name: eqloginoidc
+          port: 8443
