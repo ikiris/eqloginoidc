@@ -12,14 +12,3 @@ spec:
       services:
         - name: eqloginoidc
           port: 8443
-      middlewares:
-        - name: strip-prefix-login
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: Middleware
-metadata:
-  name: strip-prefix-login
-spec:
-  stripPrefix:
-    prefixes:
-      - /login
