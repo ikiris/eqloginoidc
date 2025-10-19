@@ -5,6 +5,4 @@ resources:
   - ../base
   - secret.enc.yaml
   - ingress.yaml
-
-generators:
-  - secret.yaml=secret.enc.yaml
+  - secret.enc.yaml
