@@ -9,6 +9,7 @@ data:
   db-host: "xev.teraptra.net"
   db-port: "3306"
   db-name: "quarm"
+  cors-origin: "https://xev.teraptra.net"
   clients.yaml: |
     clients:
       - id: "eqtestcopy-spa"

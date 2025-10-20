@@ -38,6 +38,7 @@ func doStuff(ctx context.Context) error {
 	configPath := flag.String("config", getEnv("CLIENT_CONFIG", "clients.yaml"), "Path to client configuration file")
 	certPath := flag.String("cert-file", getEnv("CERT_FILE", "cert.pem"), "Path to certificate file")
 	keyPath := flag.String("key-file", getEnv("KEY_FILE", "key.pem"), "Path to private key file")
+	corsOrigin := flag.String("cors-origin", getEnv("CORS_ORIGIN", "https://localhost:3000"), "CORS allowed origin")
 	useTLS := flag.Bool("tls", true, "Use TLS")
 
 	flag.Parse()
@@ -57,7 +58,7 @@ func doStuff(ctx context.Context) error {
 	}()
 
 	// Initialize OIDC provider server
-	server, err := login.New(ctx, db, *configPath, *certPath, *keyPath)
+	server, err := login.New(ctx, db, *configPath, *certPath, *keyPath, *corsOrigin)
 	if err != nil {
 		log.Fatalf("Failed to create login server: %v", err)
 	}

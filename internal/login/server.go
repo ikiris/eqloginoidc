@@ -22,10 +22,11 @@ type server struct {
 	clients         *clientRegistry
 	keyManager      *keyManager
 	authCodeManager *AuthCodeManager
+	corsOrigin      string
 }
 
 // New creates a new OIDC provider server
-func New(ctx context.Context, db *sql.DB, configPath, certPath, keyPath string) (*server, error) {
+func New(ctx context.Context, db *sql.DB, configPath, certPath, keyPath, corsOrigin string) (*server, error) {
 	eqDB, err := eqdb.New(db)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize database: %w", err)
@@ -50,6 +51,7 @@ func New(ctx context.Context, db *sql.DB, configPath, certPath, keyPath string) 
 		clients:         clients,
 		keyManager:      keyManager,
 		authCodeManager: authCodeManager,
+		corsOrigin:      corsOrigin,
 	}, nil
 }
 
@@ -81,7 +83,7 @@ func (s *server) Register() {
 func (s *server) corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Set CORS headers BEFORE any other headers or response
-		w.Header().Set("Access-Control-Allow-Origin", "https://localhost:3000")
+		w.Header().Set("Access-Control-Allow-Origin", s.corsOrigin)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")

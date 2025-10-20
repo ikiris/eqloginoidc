@@ -40,6 +40,9 @@ func (s *server) handleHome(w http.ResponseWriter, r *http.Request) {
 // getBaseURL returns the base URL for the current request
 func getBaseURL(r *http.Request) string {
 	scheme := "https"
+	if r.TLS == nil {
+		scheme = "http"
+	}
 	return fmt.Sprintf("%s://%s", scheme, r.Host)
 }
 
