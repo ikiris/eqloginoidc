@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/ikiris/eqmaclib/eqdb"
 )
@@ -66,8 +67,8 @@ func (s *server) Register() {
 	// Authorization endpoint
 	http.HandleFunc("/auth", s.handleAuth)
 
-	// Token endpoint with CORS
-	http.HandleFunc("/token", s.corsMiddleware(s.handleToken))
+	// Token endpoint with CORS validation based on redirect URI
+	http.HandleFunc("/token", s.tokenCorsMiddleware(s.handleToken))
 
 	// UserInfo endpoint
 	http.HandleFunc("/userinfo", s.corsMiddleware(s.handleUserInfo))
@@ -82,8 +83,12 @@ func (s *server) Register() {
 // corsMiddleware adds CORS headers for cross-origin requests
 func (s *server) corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Set CORS headers BEFORE any other headers or response
-		w.Header().Set("Access-Control-Allow-Origin", s.corsOrigin)
+		// For OIDC discovery and JWKS endpoints, allow all origins
+		origin := r.Header.Get("Origin")
+		if origin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		}
+
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -97,6 +102,54 @@ func (s *server) corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// Call the next handler
 		next(w, r)
 	}
+}
+
+// tokenCorsMiddleware adds CORS headers for token endpoint based on redirect URI
+func (s *server) tokenCorsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// For token endpoint, validate CORS based on the redirect_uri in the request
+		origin := r.Header.Get("Origin")
+		redirectURI := r.FormValue("redirect_uri")
+
+		if origin != "" && redirectURI != "" {
+			// Extract origin from redirect URI
+			if strings.HasPrefix(redirectURI, "https://") || strings.HasPrefix(redirectURI, "http://") {
+				// Simple origin extraction - in production you'd want more robust parsing
+				parts := strings.Split(redirectURI[8:], "/")
+				if len(parts) > 0 {
+					redirectOrigin := "https://" + parts[0]
+					if origin == redirectOrigin {
+						w.Header().Set("Access-Control-Allow-Origin", origin)
+					}
+				}
+			}
+		}
+
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		// Handle preflight OPTIONS request
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Call the next handler
+		next(w, r)
+	}
+}
+
+// isOriginAllowed checks if the given origin is in the allowed list
+func (s *server) isOriginAllowed(origin string) bool {
+	// Split the corsOrigin by comma and check if the origin matches any allowed origin
+	allowedOrigins := strings.Split(s.corsOrigin, ",")
+	for _, allowedOrigin := range allowedOrigins {
+		if strings.TrimSpace(allowedOrigin) == origin {
+			return true
+		}
+	}
+	return false
 }
 
 // GetTLSConfig returns the TLS configuration using the server's certificate
