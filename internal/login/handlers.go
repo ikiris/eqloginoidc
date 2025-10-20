@@ -303,9 +303,12 @@ func (s *server) handleToken(w http.ResponseWriter, r *http.Request) {
 	if grantType == "authorization_code" {
 		if err := s.clients.validateRedirectURI(clientID, redirectURI); err != nil {
 			slog.Error("Token exchange failed: invalid redirect URI", "client_id", clientID, "redirect_uri", redirectURI, "error", err)
+
 			s.writeOAuthError(w, "invalid_request", "Invalid redirect_uri", http.StatusBadRequest)
+
 			return
 		}
+
 		slog.Info("Redirect URI validation passed", "redirect_uri", redirectURI)
 	}
 

@@ -1,0 +1,16 @@
+clients:
+  - id: "eqtestcopy-spa"
+    name: "EQ Test Copy"
+    client_type: "public"
+    redirect_uris:
+      - "https://xevcopy.teraptra.net/callback"
+    grant_types:
+      - "authorization_code"
+      - "refresh_token"
+    response_types:
+      - "code"
+    scopes:
+      - "openid"
+      - "profile"
+    require_https: true
+    pkce_required: true

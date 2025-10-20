@@ -2,6 +2,7 @@ package login
 
 import (
 	"fmt"
+	"log/slog"
 	"net/url"
 	"os"
 	"strings"
@@ -33,6 +34,25 @@ type clientRegistry struct {
 	clients map[string]ClientConfig
 }
 
+// SafeClientConfig represents a client configuration for logging (without secrets)
+type SafeClientConfig struct {
+	ID            string   `json:"id"`
+	Name          string   `json:"name"`
+	ClientType    string   `json:"client_type"`
+	RedirectURIs  []string `json:"redirect_uris"`
+	GrantTypes    []string `json:"grant_types"`
+	ResponseTypes []string `json:"response_types"`
+	Scopes        []string `json:"scopes"`
+	RequireHTTPS  bool     `json:"require_https"`
+	PKCERequired  bool     `json:"pkce_required"`
+	HasSecret     bool     `json:"has_secret"` // Indicates if a secret is configured
+}
+
+// SafeClientsConfig represents the complete clients configuration for logging
+type SafeClientsConfig struct {
+	Clients []SafeClientConfig `json:"clients"`
+}
+
 // loadClientConfig loads client configurations from a YAML file
 func loadClientConfig(configPath string) (*clientRegistry, error) {
 	data, err := os.ReadFile(configPath)
@@ -44,6 +64,9 @@ func loadClientConfig(configPath string) (*clientRegistry, error) {
 	if err := yaml.Unmarshal(data, &config); err != nil {
 		return nil, fmt.Errorf("failed to parse config file: %w", err)
 	}
+
+	// Log the loaded configuration (without secrets)
+	logLoadedConfig(config)
 
 	registry := &clientRegistry{
 		clients: make(map[string]ClientConfig),
@@ -62,6 +85,7 @@ func (cr *clientRegistry) validateClient(clientID string) (*ClientConfig, error)
 	if !exists {
 		return nil, fmt.Errorf("invalid client_id: %s", clientID)
 	}
+
 	return &client, nil
 }
 
@@ -69,7 +93,7 @@ func (cr *clientRegistry) validateClient(clientID string) (*ClientConfig, error)
 func (cr *clientRegistry) validateRedirectURI(clientID, redirectURI string) error {
 	client, err := cr.validateClient(clientID)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid client_id: %w", err)
 	}
 
 	// Parse the redirect URI to validate format
@@ -171,4 +195,30 @@ func (cr *clientRegistry) validateClientAuthentication(clientID, clientSecret st
 	}
 
 	return fmt.Errorf("unknown client_type: %s", client.ClientType)
+}
+
+// logLoadedConfig logs the loaded client configuration without exposing secrets
+func logLoadedConfig(config ClientsConfig) {
+	safeConfig := SafeClientsConfig{
+		Clients: make([]SafeClientConfig, len(config.Clients)),
+	}
+
+	for i, client := range config.Clients {
+		safeConfig.Clients[i] = SafeClientConfig{
+			ID:            client.ID,
+			Name:          client.Name,
+			ClientType:    client.ClientType,
+			RedirectURIs:  client.RedirectURIs,
+			GrantTypes:    client.GrantTypes,
+			ResponseTypes: client.ResponseTypes,
+			Scopes:        client.Scopes,
+			RequireHTTPS:  client.RequireHTTPS,
+			PKCERequired:  client.PKCERequired,
+			HasSecret:     client.Secret != "",
+		}
+	}
+
+	slog.Info("Client configuration loaded",
+		slog.Int("client_count", len(config.Clients)),
+		slog.Any("clients", safeConfig.Clients))
 }
