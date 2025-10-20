@@ -5,7 +5,7 @@ metadata:
   name: eqloginoidc
 spec:
   entryPoints:
-    - web
+    - websecure
   routes:
     - match: (PathPrefix(`/auth`) || PathPrefix(`/token`) || PathPrefix(`/userinfo`) || PathPrefix(`/login`) || PathPrefix(`/.well-known`))
       kind: Rule
