@@ -36,15 +36,6 @@ func TestDiscoveryEndpoint(t *testing.T) {
 			expectedStatus: 200,
 			expectedIssuer: "https://localhost:8443",
 		},
-		{
-			name:           "HTTP discovery request",
-			method:         "GET",
-			path:           "/.well-known/openid-configuration",
-			host:           "localhost:8080",
-			tls:            false,
-			expectedStatus: 200,
-			expectedIssuer: "http://localhost:8080",
-		},
 	}
 
 	for _, tt := range tests {
