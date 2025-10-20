@@ -11,4 +11,4 @@ resources:
 
 images:
   - name: ghcr.io/ikiris/eqloginoidc
-    newTag: 0.1.6
+    newTag: 0.1.7
