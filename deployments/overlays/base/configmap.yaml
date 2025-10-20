@@ -16,7 +16,7 @@ data:
         name: "EQ Test Copy"
         client_type: "public"
         redirect_uris:
-          - "https://xev.teraptra.net/import/callback"
+          - "https://xevcopy.teraptra.net/callback"
         grant_types:
           - "authorization_code"
           - "refresh_token"
