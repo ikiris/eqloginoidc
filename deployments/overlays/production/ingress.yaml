@@ -12,4 +12,15 @@ spec:
       services:
         - name: eqloginoidc
           port: 8443
-          scheme: http
+          scheme: https
+          serversTransport: mytransport
+---
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: mytransport
+  namespace: default
+
+spec:
+  serverName: xev.teraptra.net
+  insecureSkipVerify: true
