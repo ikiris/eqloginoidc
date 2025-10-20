@@ -7,7 +7,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: host(`xev.teraptra.net`) && ((PathPrefix(`/auth`) || PathPrefix(`/token`) || PathPrefix(`/userinfo`) || PathPrefix(`/login`) || PathPrefix(`/.well-known`))
+    - match: host(`xev.teraptra.net`)
       kind: Rule
       services:
         - name: eqloginoidc
